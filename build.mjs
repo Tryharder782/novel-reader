@@ -128,7 +128,9 @@ async function buildLibrary() {
         checkChapterBody(file, body);
         chapters.push({
           n: meta.number,
+          volume: meta.volume || novel.volume || 1,
           title: meta.title || `Глава ${meta.number}`,
+          date: meta.date || '',
           file: `content/${slug}/chapters/${f}`,
           words: countWords(body),
         });
@@ -143,6 +145,13 @@ async function buildLibrary() {
       slug,
       title: novel.title,
       original: novel.original || '',
+      type: novel.type || 'Ранобэ',
+      status: novel.status || 'Онгоинг',
+      translation: novel.translation || 'Переводится',
+      year: novel.year || '',
+      rating: novel.rating || '',
+      cover: novel.cover || '',
+      tags: novel.tags || [],
       description: novel.description || '',
       hero: novel.hero || null,
       hasGlossary: await exists(glossaryFile),

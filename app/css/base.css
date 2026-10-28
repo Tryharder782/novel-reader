@@ -1,40 +1,48 @@
-/* ===== Базовые стили читалки ===== */
+/* ===== RanobeLib UI ===== */
 
 :root {
-  --reader-size: 18px;
-  --reader-lh: 1.7;
-  --maxw: 720px;
-  --radius: 12px;
+  --reader-size: 17px;
+  --reader-lh: 1.65;
+  --reader-gap: 0.85em;
+  --maxw: 740px;
+  --radius: 10px;
   --bar-h: 52px;
+  --bbar-h: 54px;
   --font-serif: "Noto Serif", "PT Serif", "Charter", Georgia, serif;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Inter, Arial, sans-serif;
+  --font-sans: "Open Sans", Inter, Roboto, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
 }
 
-/* Темы */
+/* Темы в стиле RanobeLib */
 [data-theme="dark"] {
-  --bg: #16161e; --surface: #1e1f29; --surface-2: #262735; --border: #33354a;
-  --text: #dcdde6; --text-dim: #9a9cb0; --text-faint: #6c6e85;
-  --accent: #8ab4f8; --accent-text: #0d1220;
-  --hl: rgba(160, 165, 190, 0.18);
+  --bg: #141416; --surface: #1c1c1f; --surface-2: #25262b; --border: #2e2f36;
+  --text: #e4e4e7; --text-dim: #9e9ea8; --text-faint: #6c6d78;
+  --accent: #ff9100; --accent-hover: #ffa022; --accent-text: #121214;
+  --hl: rgba(165, 168, 185, 0.17);
 }
 [data-theme="black"] {
-  --bg: #000; --surface: #0e0e12; --surface-2: #17171d; --border: #26262f;
-  --text: #d6d6dc; --text-dim: #8d8d99; --text-faint: #5d5d68;
-  --accent: #8ab4f8; --accent-text: #0d1220;
-  --hl: rgba(160, 160, 180, 0.17);
+  --bg: #000000; --surface: #101012; --surface-2: #19191d; --border: #25252b;
+  --text: #dcdce0; --text-dim: #8e8e98; --text-faint: #5e5e68;
+  --accent: #ff9100; --accent-hover: #ffa022; --accent-text: #121214;
+  --hl: rgba(160, 162, 180, 0.17);
+}
+[data-theme="dusk"] {
+  --bg: #161922; --surface: #1e222e; --surface-2: #272c3a; --border: #33394b;
+  --text: #dfe3ee; --text-dim: #9aa2b8; --text-faint: #687086;
+  --accent: #ff9100; --accent-hover: #ffa022; --accent-text: #121214;
+  --hl: rgba(155, 168, 198, 0.18);
 }
 [data-theme="sepia"] {
-  --bg: #f4ecd8; --surface: #ece2c9; --surface-2: #e3d7ba; --border: #d3c5a3;
-  --text: #3b3226; --text-dim: #6e604b; --text-faint: #978a72;
-  --accent: #8a5a1f; --accent-text: #fff;
+  --bg: #f4ecd8; --surface: #ebe1c7; --surface-2: #e1d5b7; --border: #d1c3a0;
+  --text: #382f23; --text-dim: #6e5f4a; --text-faint: #96876f;
+  --accent: #e07a00; --accent-hover: #c96d00; --accent-text: #ffffff;
   --hl: rgba(110, 90, 50, 0.14);
 }
 [data-theme="light"] {
-  --bg: #fafaf7; --surface: #f0f0ec; --surface-2: #e7e7e1; --border: #d8d8d0;
-  --text: #22232a; --text-dim: #5d5f6b; --text-faint: #8d8f9a;
-  --accent: #2f5fb3; --accent-text: #fff;
-  --hl: rgba(90, 95, 110, 0.13);
+  --bg: #f5f5f7; --surface: #ffffff; --surface-2: #ededf0; --border: #e0e0e5;
+  --text: #1d1d20; --text-dim: #636369; --text-faint: #94949c;
+  --accent: #f57c00; --accent-hover: #ef6c00; --accent-text: #ffffff;
+  --hl: rgba(90, 95, 110, 0.12);
 }
 
 * { box-sizing: border-box; }
@@ -44,133 +52,343 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-tap-highlight-color: transparent;
   padding-top: calc(var(--bar-h) + env(safe-area-inset-top));
   padding-bottom: env(safe-area-inset-bottom);
   min-height: 100vh;
 }
+body[data-view="chapter"] {
+  padding-bottom: calc(var(--bbar-h) + env(safe-area-inset-bottom));
+}
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; }
 
-/* ===== Верхняя панель ===== */
+/* ===== Верхняя панель (RanobeLib Topbar) ===== */
 #topbar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 25;
   height: calc(var(--bar-h) + env(safe-area-inset-top));
-  padding: env(safe-area-inset-top) 6px 0;
-  display: flex; align-items: center; gap: 4px;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  padding: env(safe-area-inset-top) 8px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  transition: transform .25s ease;
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1);
 }
 #topbar.hidden { transform: translateY(-100%); }
+
+#topbar-center {
+  flex: 1; min-width: 0; padding: 4px 8px;
+  display: flex; flex-direction: column; justify-content: center;
+  border-radius: 8px;
+}
+#topbar-center.clickable { cursor: pointer; }
+#topbar-center.clickable:active { background: var(--surface-2); }
 #topbar-title {
-  flex: 1; min-width: 0; padding: 0 8px;
-  font-weight: 600; font-size: 16px;
+  font-weight: 700; font-size: 15px; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 4px;
+}
+.rl-logo { font-weight: 800; font-size: 17px; letter-spacing: -.02em; }
+.rl-logo span {
+  background: var(--accent); color: var(--accent-text);
+  padding: 1px 5px; border-radius: 5px; margin-left: 2px; font-size: 15px;
+}
+#topbar-sub {
+  font-size: 11.5px; color: var(--text-dim); line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.topbar-actions { display: flex; align-items: center; gap: 2px; }
+
 .icon-btn {
-  width: 44px; height: 44px; border: 0; background: none; border-radius: 10px;
-  font-size: 22px; line-height: 1; cursor: pointer; color: var(--text);
+  width: 40px; height: 40px; border: 0; background: none; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text);
 }
-#btn-aa { font-size: 17px; font-weight: 600; }
 .icon-btn:active { background: var(--surface-2); }
 .icon-btn[hidden] { display: none; }
 
 #read-progress {
-  position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 30;
+  position: fixed; top: 0; left: 0; right: 0; height: 2.5px; z-index: 35;
   background: var(--accent); transform-origin: 0 50%; transform: scaleX(0);
   pointer-events: none;
 }
 
+/* ===== Нижняя панель читалки (RanobeLib Bottombar) ===== */
+#bottombar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
+  height: calc(var(--bbar-h) + env(safe-area-inset-bottom));
+  padding: 0 6px env(safe-area-inset-bottom);
+  display: grid; grid-template-columns: repeat(5, 1fr); align-items: center;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1);
+}
+#bottombar[hidden] { display: none; }
+#bottombar.hidden { transform: translateY(100%); }
+.bb-btn {
+  height: 46px; border: 0; background: none; border-radius: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: var(--text-dim); font-size: 11px; font-weight: 500; cursor: pointer;
+}
+.bb-btn:active:not(:disabled) { background: var(--surface-2); color: var(--text); }
+.bb-btn:disabled { opacity: .32; cursor: default; }
+.bb-aa-icon { font-size: 15px; font-weight: 700; line-height: 18px; color: var(--text); }
+
 /* ===== Общие элементы ===== */
-.page { max-width: var(--maxw); margin: 0 auto; padding: 16px 16px 48px; }
+.page { max-width: 820px; margin: 0 auto; padding: 16px 14px 48px; }
 .empty { color: var(--text-dim); text-align: center; padding: 48px 16px; }
 .muted { color: var(--text-dim); }
 
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  min-height: 42px; padding: 0 16px; border-radius: 10px;
-  border: 1px solid var(--border); background: var(--surface);
-  font-size: 15px; font-weight: 500; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 40px; padding: 0 16px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: background .15s, opacity .15s;
 }
-.btn:active { background: var(--surface-2); }
-.btn-primary { background: var(--accent); color: var(--accent-text); border-color: transparent; }
-.btn.ghost { opacity: .5; }
-.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-
-/* Библиотека */
-.novel-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 12px;
+.btn:active { filter: brightness(.93); }
+.btn-primary {
+  background: var(--accent); color: var(--accent-text); border-color: transparent;
+  font-weight: 700;
 }
-.novel-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
-.novel-orig { color: var(--text-dim); font-size: 13px; margin-top: 2px; }
-.novel-meta { color: var(--text-faint); font-size: 13px; margin-top: 6px; }
-.link-row { display: block; padding: 14px 4px; color: var(--text-dim); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn.ghost { opacity: .45; pointer-events: none; }
 
-/* Оглавление */
-.novel-head h1 { font-size: 22px; line-height: 1.3; margin: 4px 0 2px; }
-.novel-desc { color: var(--text-dim); font-size: 14px; }
-.offline-status { color: var(--text-dim); font-size: 13px; margin-top: 8px; min-height: 1em; }
-.ch-list { margin-top: 16px; border-top: 1px solid var(--border); }
-.ch-row {
-  display: flex; align-items: center; gap: 12px; padding: 13px 4px;
+/* ===== Каталог / Библиотека (RanobeLib Cards) ===== */
+.section-head {
+  font-size: 16px; font-weight: 700; margin: 4px 0 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rl-catalog-card {
+  display: flex; gap: 14px; padding: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 12px;
+}
+.rl-catalog-cover {
+  width: 92px; height: 136px; flex: none; border-radius: 7px;
+  overflow: hidden; background: var(--surface-2); position: relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+}
+.rl-catalog-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rl-rating-badge {
+  position: absolute; top: 6px; left: 6px;
+  background: rgba(20, 20, 22, 0.85); color: #ffb400;
+  font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 5px;
+}
+.rl-catalog-body {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: space-between;
+}
+.rl-catalog-type { font-size: 11.5px; color: var(--text-dim); margin-bottom: 2px; }
+.rl-catalog-title {
+  font-size: 16px; font-weight: 700; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rl-catalog-orig {
+  font-size: 12px; color: var(--text-faint); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rl-catalog-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px;
+}
+.rl-catalog-meta { font-size: 12px; color: var(--text-dim); }
+
+/* ===== Страница тайтла (RanobeLib Title Page) ===== */
+.rl-title-wrap { max-width: 860px; margin: 0 auto; padding-bottom: 48px; }
+.rl-hero {
+  position: relative; overflow: hidden;
+  padding: 20px 16px 16px;
   border-bottom: 1px solid var(--border);
 }
-.ch-row:active { background: var(--surface); }
-.ch-n { width: 32px; flex: none; color: var(--text-faint); font-variant-numeric: tabular-nums; text-align: right; font-size: 14px; }
-.ch-title { flex: 1; min-width: 0; }
-.ch-row.read .ch-title { color: var(--text-dim); }
-.ch-mark { width: 16px; color: var(--accent); font-size: 12px; text-align: center; }
+.rl-hero-bg {
+  position: absolute; inset: -20px; z-index: 0;
+  background-size: cover; background-position: center;
+  filter: blur(24px) brightness(.38) saturate(1.2);
+  transform: scale(1.1);
+}
+[data-theme="light"] .rl-hero-bg,
+[data-theme="sepia"] .rl-hero-bg {
+  filter: blur(24px) brightness(.85) opacity(.28);
+}
+.rl-hero-grad {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(20,20,22,.35) 0%, var(--bg) 100%);
+}
+[data-theme="light"] .rl-hero-grad {
+  background: linear-gradient(180deg, rgba(245,245,247,.3) 0%, var(--bg) 100%);
+}
+[data-theme="sepia"] .rl-hero-grad {
+  background: linear-gradient(180deg, rgba(244,236,216,.3) 0%, var(--bg) 100%);
+}
 
-/* ===== Глава ===== */
-.chapter { max-width: var(--maxw); margin: 0 auto; padding: 20px 20px 40px; }
-.chapter-head { margin: 8px 0 28px; }
-.chapter-num { color: var(--text-faint); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
-.chapter-title { font-size: 24px; line-height: 1.3; margin: 6px 0 0; font-family: var(--font-sans); }
+.rl-hero-content {
+  position: relative; z-index: 2;
+  display: flex; gap: 16px; align-items: flex-end;
+}
+.rl-poster {
+  width: 112px; height: 164px; flex: none; border-radius: 8px; overflow: hidden;
+  background: var(--surface-2); box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.rl-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rl-hero-info { flex: 1; min-width: 0; }
+.rl-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; align-items: center; }
+.rl-badge {
+  font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px;
+  background: var(--surface-2); color: var(--text-dim);
+}
+.rl-badge-star { color: #ffb400; background: rgba(255, 180, 0, .14); font-weight: 700; }
+.rl-main-title { font-size: 19px; font-weight: 800; line-height: 1.25; margin: 0 0 4px; }
+.rl-sub-title { font-size: 12.5px; color: var(--text-dim); line-height: 1.3; }
+
+.rl-hero-actions {
+  position: relative; z-index: 2;
+  display: flex; gap: 8px; margin-top: 16px;
+}
+.rl-hero-actions .btn-primary { flex: 1; min-height: 42px; font-size: 14.5px; }
+.rl-hero-actions .btn-icon-only { width: 42px; min-height: 42px; padding: 0; flex: none; }
+
+/* Вкладки RanobeLib */
+.rl-tabs {
+  display: flex; gap: 4px; padding: 0 14px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: calc(var(--bar-h) + env(safe-area-inset-top)); z-index: 15;
+  overflow-x: auto;
+}
+.rl-tab {
+  padding: 12px 12px 10px; border: 0; background: none; cursor: pointer;
+  font-size: 14px; font-weight: 600; color: var(--text-dim);
+  border-bottom: 2.5px solid transparent; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.rl-tab-count {
+  font-size: 11.5px; padding: 1px 6px; border-radius: 999px;
+  background: var(--surface-2); color: var(--text-dim); font-weight: 600;
+}
+.rl-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.rl-tab.active .rl-tab-count { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+
+.rl-tab-panel { padding: 16px 14px; }
+.rl-tab-panel[hidden] { display: none; }
+
+/* Вкладка «О тайтле» */
+.rl-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px;
+}
+.rl-info-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px 14px;
+}
+.rl-info-item .k { font-size: 12px; color: var(--text-faint); }
+.rl-info-item .v { font-size: 13.5px; font-weight: 600; margin-top: 2px; }
+.rl-desc { font-size: 14.5px; line-height: 1.6; color: var(--text); }
+.rl-desc p { margin: 0 0 .7em; }
+.rl-desc p:last-child { margin-bottom: 0; }
+.rl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.rl-tag {
+  font-size: 12.5px; padding: 4px 10px; border-radius: 6px;
+  background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border);
+}
+
+/* Вкладка «Главы» */
+.rl-ch-toolbar {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.rl-ch-filter {
+  flex: 1; height: 38px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px;
+}
+.rl-sort-btn {
+  height: 38px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface);
+  font-size: 13px; font-weight: 600; color: var(--text-dim); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.rl-ch-list {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.rl-ch-item {
+  display: flex; align-items: center; gap: 10px; padding: 11px 14px;
+  border-bottom: 1px solid var(--border); transition: background .12s;
+}
+.rl-ch-item:last-child { border-bottom: 0; }
+.rl-ch-item:active { background: var(--surface-2); }
+.rl-ch-link { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rl-ch-main {
+  font-size: 14px; font-weight: 600; line-height: 1.35;
+  display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+}
+.rl-ch-vol { color: var(--text); font-weight: 700; }
+.rl-ch-name { color: var(--text-dim); font-weight: 400; }
+.rl-ch-sub { font-size: 11.5px; color: var(--text-faint); }
+.rl-ch-item.read .rl-ch-vol,
+.rl-ch-item.read .rl-ch-name { color: var(--text-faint); }
+.rl-ch-item.current {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-left: 3px solid var(--accent);
+}
+.rl-eye-btn {
+  width: 34px; height: 34px; flex: none; border: 0; background: none; border-radius: 7px;
+  color: var(--text-faint); display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.rl-ch-item.read .rl-eye-btn { color: var(--accent); }
+.rl-eye-btn:active { background: var(--surface-2); }
+
+/* ===== Экран чтения главы (RanobeLib Reader) ===== */
+.chapter { max-width: var(--maxw); margin: 0 auto; padding: 18px 18px 36px; }
+.chapter-head {
+  margin: 4px 0 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+.chapter-num {
+  color: var(--accent); font-size: 12.5px; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.chapter-title { font-size: 22px; font-weight: 800; line-height: 1.3; margin: 4px 0 0; }
 
 .prose {
   font-size: var(--reader-size);
   line-height: var(--reader-lh);
   font-family: var(--font-sans);
-  hyphens: auto;
-  -webkit-hyphens: auto;
   overflow-wrap: break-word;
 }
 [data-font="serif"] .prose { font-family: var(--font-serif); }
-.prose > p { margin: 0 0 .9em; }
+[data-align="justify"] .prose > p { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.prose > p { margin: 0 0 var(--reader-gap); }
 .prose em { font-style: italic; }
 .prose strong { font-weight: 700; }
-.prose h2, .prose h3, .prose h4, .prose h5 { font-family: var(--font-sans); line-height: 1.3; margin: 1.6em 0 .6em; }
+.prose h2, .prose h3, .prose h4, .prose h5 { font-family: var(--font-sans); line-height: 1.3; margin: 1.5em 0 .6em; }
 .prose blockquote {
-  margin: 1em 0; padding: .2em 0 .2em 1em; border-left: 3px solid var(--border); color: var(--text-dim);
+  margin: 1em 0; padding: .3em 0 .3em 1em; border-left: 3px solid var(--accent); color: var(--text-dim);
 }
 .prose blockquote p { margin: .4em 0; }
 
 .chapter-nav {
   display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px;
-  margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+  margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--border);
 }
 .chapter-nav > :first-child { justify-self: start; }
 .chapter-nav > :last-child { justify-self: end; }
 
-/* ===== Глоссарий ===== */
+/* ===== Глоссарий (серый хайлайт + плавная сноска со смещением текста) ===== */
 .gl-term {
   background: var(--hl);
   border-radius: 4px;
-  padding: 0 .12em;
-  margin: 0 -.12em;
+  padding: 0 .14em;
+  margin: 0 -.14em;
   cursor: pointer;
   transition: background .15s ease;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
+.gl-term:hover,
 .gl-term:active,
-.gl-term.active { background: color-mix(in srgb, var(--hl) 100%, var(--text) 16%); }
+.gl-term.active { background: color-mix(in srgb, var(--hl) 100%, var(--text) 18%); }
 
 .gl-inline-wrap {
   display: grid;
@@ -186,42 +404,44 @@ button { font: inherit; color: inherit; }
 .gl-inline-wrap.open {
   grid-template-rows: 1fr;
   opacity: 1;
-  margin: -.2em 0 1em;
+  margin: -.15em 0 .95em;
 }
-.gl-inline-inner {
-  overflow: hidden;
-  min-height: 0;
-}
+.gl-inline-inner { overflow: hidden; min-height: 0; }
 .gl-card {
   padding: 12px 14px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+  border-radius: 9px;
 }
 
 .search {
-  width: 100%; height: 44px; padding: 0 14px; border-radius: 10px;
-  border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 16px;
+  width: 100%; height: 40px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 14px;
 }
-.gl-hint { color: var(--text-faint); font-size: 13px; margin: 8px 2px 4px; }
+.gl-hint { color: var(--text-faint); font-size: 12.5px; margin: 8px 2px 6px; }
 .gl-group {
-  font-size: 13px; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--text-faint); margin: 22px 2px 6px; font-weight: 600;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--accent); margin: 18px 2px 6px; font-weight: 700;
 }
 .gl-row {
   display: flex; width: 100%; align-items: baseline; gap: 10px; text-align: left;
-  padding: 12px 4px; border: 0; border-bottom: 1px solid var(--border); background: none; cursor: pointer;
+  padding: 11px 12px; border: 0; border-bottom: 1px solid var(--border);
+  background: var(--surface); cursor: pointer;
 }
-.gl-row-name { font-weight: 500; }
-.gl-row-orig { color: var(--text-faint); font-size: 13px; margin-left: auto; text-align: right; }
+.gl-row:first-of-type { border-radius: 8px 8px 0 0; }
+.gl-row:last-of-type { border-bottom: 0; border-radius: 0 0 8px 8px; }
+.gl-row.active { background: var(--surface-2); }
+.gl-row-name { font-weight: 600; font-size: 14px; }
+.gl-row-orig { color: var(--text-faint); font-size: 12.5px; margin-left: auto; text-align: right; }
 
-.gl-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.gl-card-name { font-size: 17px; font-weight: 700; line-height: 1.3; }
-.gl-card-orig { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
+.gl-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.gl-card-name { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.gl-card-orig { color: var(--text-dim); font-size: 12px; margin-top: 1px; }
 .gl-card-actions { display: flex; align-items: center; gap: 6px; flex: none; }
 .gl-card-cat {
   flex: none; font-size: 11px; color: var(--text-dim); border: 1px solid var(--border);
-  padding: 2px 8px; border-radius: 999px;
+  padding: 2px 8px; border-radius: 999px; background: var(--surface-2);
 }
 .gl-card-close {
   display: inline-flex; align-items: center; justify-content: center;
@@ -232,60 +452,85 @@ button { font: inherit; color: inherit; }
 }
 .gl-card-close:hover,
 .gl-card-close:active { color: var(--text); background: var(--border); }
-.gl-card-body { margin-top: 8px; font-size: 14px; line-height: 1.55; }
+.gl-card-body { margin-top: 8px; font-size: 14px; line-height: 1.55; color: var(--text); }
 .gl-card-body p { margin: 0 0 .5em; }
 .gl-card-body p:last-child { margin-bottom: 0; }
 .gl-card-foot { color: var(--text-faint); font-size: 11.5px; margin-top: 8px; }
 
-/* ===== Нижний лист ===== */
+/* ===== Шторка (RanobeLib Drawer / Bottom Sheet) ===== */
 #sheet {
   position: fixed; inset: 0; z-index: 40;
   background: rgba(0, 0, 0, 0); pointer-events: none;
-  transition: background .2s ease;
+  transition: background .22s ease;
 }
-#sheet.open { background: rgba(0, 0, 0, .45); pointer-events: auto; }
+#sheet.open { background: rgba(0, 0, 0, .55); pointer-events: auto; }
 .sheet-panel {
   position: absolute; left: 0; right: 0; bottom: 0;
-  max-width: var(--maxw); margin: 0 auto;
-  max-height: 80vh; overflow-y: auto;
+  max-width: 680px; margin: 0 auto;
+  max-height: 82vh; overflow-y: auto;
   background: var(--surface); border: 1px solid var(--border); border-bottom: 0;
-  border-radius: 18px 18px 0 0;
-  padding: 8px 18px calc(20px + env(safe-area-inset-bottom));
-  transform: translateY(100%); transition: transform .25s ease;
+  border-radius: 16px 16px 0 0;
+  padding: 8px 16px calc(20px + env(safe-area-inset-bottom));
+  transform: translateY(100%); transition: transform .25s cubic-bezier(.22, 1, .36, 1);
 }
 #sheet.open .sheet-panel { transform: translateY(0); }
 .sheet-grip {
-  width: 40px; height: 5px; border-radius: 3px; background: var(--border);
-  margin: 4px auto 14px; cursor: pointer;
+  width: 38px; height: 4px; border-radius: 2px; background: var(--border);
+  margin: 4px auto 12px; cursor: pointer;
+}
+.sheet-title {
+  font-size: 15px; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
 }
 
-/* ===== Настройки ===== */
-.set-group { margin-bottom: 18px; }
-.set-label { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; display: flex; justify-content: space-between; }
-.set-val { color: var(--text); font-variant-numeric: tabular-nums; }
+/* ===== Настройки читалки (RanobeLib Reader Menu) ===== */
+.set-group { margin-bottom: 16px; }
+.set-label {
+  font-size: 12.5px; font-weight: 600; color: var(--text-dim); margin-bottom: 7px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.set-val { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Кружки выбора темы как в RanobeLib */
+.theme-swatches {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+}
+.theme-swatch {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 8px 4px; border-radius: 8px; border: 1.5px solid var(--border);
+  background: var(--surface-2); cursor: pointer; font-size: 11px; color: var(--text-dim);
+}
+.theme-swatch.on { border-color: var(--accent); color: var(--text); font-weight: 600; }
+.swatch-dot {
+  width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(128,128,128,.35);
+}
+
 .seg {
-  display: flex; background: var(--surface-2); border-radius: 10px; padding: 3px; gap: 3px;
+  display: flex; background: var(--surface-2); border-radius: 8px; padding: 3px; gap: 3px;
 }
 .seg button, .stepper button {
-  flex: 1; min-height: 38px; border: 0; border-radius: 8px; background: none; cursor: pointer;
-  font-size: 14px; color: var(--text-dim);
+  flex: 1; min-height: 36px; border: 0; border-radius: 6px; background: none; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--text-dim);
 }
-.seg button.on { background: var(--bg); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.seg button.on {
+  background: var(--accent); color: var(--accent-text); font-weight: 700;
+}
 .stepper { display: flex; gap: 8px; }
-.stepper button { background: var(--surface-2); color: var(--text); font-weight: 600; }
-.preview-box { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
-.about { color: var(--text-faint); font-size: 12px; margin-top: 24px; }
+.stepper button { background: var(--surface-2); color: var(--text); font-weight: 700; font-size: 14px; border: 1px solid var(--border); }
+.stepper button:active { background: var(--border); }
+.preview-box { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); }
+.about { color: var(--text-faint); font-size: 12px; margin-top: 20px; text-align: center; }
 
 /* ===== Тост ===== */
 #toast {
   position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 50;
   transform: translate(-50%, 150%); transition: transform .25s ease;
-  background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
   padding: 10px 12px 10px 16px; display: flex; align-items: center; gap: 12px;
-  font-size: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.3); white-space: nowrap;
+  font-size: 13.5px; box-shadow: 0 6px 24px rgba(0,0,0,.4); white-space: nowrap;
 }
 #toast.show { transform: translate(-50%, 0); }
 #toast button {
-  border: 0; background: var(--accent); color: var(--accent-text); border-radius: 8px;
-  padding: 7px 12px; font-weight: 600; cursor: pointer;
+  border: 0; background: var(--accent); color: var(--accent-text); border-radius: 7px;
+  padding: 6px 12px; font-weight: 700; cursor: pointer;
 }

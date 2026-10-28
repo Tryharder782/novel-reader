@@ -1,11 +1,14 @@
-// Настройки и прогресс чтения (localStorage).
+// Настройки и прогресс чтения (localStorage) — RanobeLib Edition.
 
 const DEFAULTS = {
-  theme: 'dark',        // dark | black | light | sepia
+  theme: 'dark',        // dark | black | dusk | sepia | light
   ui: 'minimal',        // minimal | game  — стиль компонентов Intelligent UI
   font: 'sans',         // sans | serif
-  fontSize: 18,
-  lineHeight: 1.7,
+  fontSize: 17,
+  lineHeight: 1.65,
+  paraGap: 0.85,        // отступ между абзацами в em
+  containerWidth: 740,  // макс. ширина текста в px
+  align: 'left',        // left | justify
   glossary: 'first',    // first | all | off
 };
 
@@ -40,17 +43,26 @@ export function applySettings(s = settings.get()) {
   root.dataset.theme = s.theme;
   root.dataset.ui = s.ui;
   root.dataset.font = s.font;
+  root.dataset.align = s.align;
   root.style.setProperty('--reader-size', s.fontSize + 'px');
   root.style.setProperty('--reader-lh', s.lineHeight);
+  root.style.setProperty('--reader-gap', s.paraGap + 'em');
+  root.style.setProperty('--maxw', s.containerWidth + 'px');
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.content = { dark: '#16161e', black: '#000000', light: '#fafaf7', sepia: '#f4ecd8' }[s.theme] || '#16161e';
+    meta.content = {
+      dark: '#141416',
+      black: '#000000',
+      dusk: '#161922',
+      sepia: '#f4ecd8',
+      light: '#ffffff',
+    }[s.theme] || '#141416';
   }
 }
 
 export const progress = {
   get(slug) {
-    return { last: null, maxRead: 0, pos: {}, read: [], ...read(keyProgress(slug), {}) };
+    return { last: null, maxRead: 0, maxSeen: 0, pos: {}, read: [], ...read(keyProgress(slug), {}) };
   },
   savePos(slug, n, ratio) {
     const p = this.get(slug);
@@ -64,7 +76,15 @@ export const progress = {
     p.maxRead = Math.max(p.maxRead, n);
     write(keyProgress(slug), p);
   },
-  // Глава считается «открытой» (для глоссария без спойлеров), даже если не дочитана.
+  toggleRead(slug, n) {
+    const p = this.get(slug);
+    const idx = p.read.indexOf(n);
+    if (idx >= 0) p.read.splice(idx, 1);
+    else p.read.push(n);
+    p.maxRead = p.read.length ? Math.max(...p.read) : 0;
+    write(keyProgress(slug), p);
+    return p.read.includes(n);
+  },
   touch(slug, n) {
     const p = this.get(slug);
     p.last = n;
