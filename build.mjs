@@ -197,21 +197,37 @@ async function main() {
   const rel = p => './' + path.relative(DIST, p).split(path.sep).join('/');
   const shell = all
     .map(rel)
-    .filter(p => !p.startsWith('./content/') && p !== './sw.js' && p !== './_headers');
+    .filter(p => !p.startsWith('./content/') && p !== './sw.js' && p !== './_headers' && p !== './.nojekyll');
   shell.unshift('./');
 
-  // ID сборки = хэш оболочки. Меняется только при изменении кода читалки.
+  // ID сборки = хэш всех файлов контента и оболочки.
+  // Любое изменение (новая глава, обновление обложки или правка UI) генерирует новый хэш.
   const hash = crypto.createHash('sha1');
-  for (const p of all.filter(p => !rel(p).startsWith('./content/')).sort()) {
+  for (const p of all.filter(p => !rel(p).endsWith('sw.js') && !rel(p).endsWith('_headers') && !rel(p).endsWith('.nojekyll')).sort()) {
     hash.update(rel(p));
     hash.update(await fs.readFile(p));
   }
   const buildId = hash.digest('hex').slice(0, 10);
 
+  // Добавляем версию к обложкам в library.json для мгновенного сброса кэша изображений
+  for (const n of novels) {
+    if (n.cover && !n.cover.includes('?v=')) {
+      n.cover = `${n.cover}?v=${buildId}`;
+    }
+  }
+  await fs.writeFile(path.join(DIST, 'content', 'library.json'), JSON.stringify(library, null, 1));
+
+  // Подставляем ID сборки в sw.js
   const swPath = path.join(DIST, 'sw.js');
   let sw = await fs.readFile(swPath, 'utf8');
-  sw = sw.replace('__BUILD_ID__', buildId).replace('__SHELL_FILES__', JSON.stringify(shell));
+  sw = sw.replaceAll('__BUILD_ID__', buildId).replaceAll('__SHELL_FILES__', JSON.stringify(shell));
   await fs.writeFile(swPath, sw);
+
+  // Подставляем ID сборки в index.html (для css/base.css?v=..., js/app.js?v=...)
+  const htmlPath = path.join(DIST, 'index.html');
+  let html = await fs.readFile(htmlPath, 'utf8');
+  html = html.replaceAll('__BUILD_ID__', buildId);
+  await fs.writeFile(htmlPath, html);
 
   // Cloudflare Pages: не кэшировать агрессивно sw.js и library.json
   await fs.writeFile(path.join(DIST, '_headers'), [

@@ -2,23 +2,27 @@
 // __BUILD_ID__ и __SHELL_FILES__ подставляются при сборке (build.mjs).
 const BUILD = '__BUILD_ID__';
 const SHELL_CACHE = 'shell-' + BUILD;
-const CONTENT_CACHE = 'content-v1';
+const CONTENT_CACHE = 'content-' + BUILD;
 const SHELL_FILES = __SHELL_FILES__;
 
 self.addEventListener('install', event => {
+  // Не ждём закрытия вкладок — сразу активируем новый SW
+  self.skipWaiting();
   event.waitUntil(
     caches.open(SHELL_CACHE)
       .then(c => c.addAll(SHELL_FILES.map(f => new Request(f, { cache: 'reload' }))))
-      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', event => {
+  // Удаляем абсолютно все старые кэши оболочки и контента от прошлых сборок
   event.waitUntil(
     caches.keys()
-      .then(keys => Promise.all(keys
-        .filter(k => k.startsWith('shell-') && k !== SHELL_CACHE)
-        .map(k => caches.delete(k))))
+      .then(keys => Promise.all(
+        keys
+          .filter(k => k !== SHELL_CACHE && k !== CONTENT_CACHE)
+          .map(k => caches.delete(k))
+      ))
       .then(() => self.clients.claim())
   );
 });
@@ -42,7 +46,9 @@ self.addEventListener('fetch', event => {
   // Навигация — всегда index.html оболочки (роутинг на #хэшах).
   if (req.mode === 'navigate') {
     event.respondWith(
-      caches.match('./index.html', { cacheName: SHELL_CACHE }).then(r => r || fetch(req))
+      caches.match(req, { cacheName: SHELL_CACHE })
+        .then(r => r || caches.match('./index.html', { cacheName: SHELL_CACHE }))
+        .then(r => r || fetch(req))
     );
     return;
   }

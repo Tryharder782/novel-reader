@@ -641,10 +641,36 @@ function settingsControls() {
     <div class="set-group">
       <div class="set-label">Подсветка терминов в тексте</div>
       ${seg('glossary', [['first', 'Первое упом.'], ['all', 'Все'], ['off', 'Выкл.']])}
+    </div>
+    <div class="set-group" style="padding-top:8px">
+      <button id="btn-force-reload" class="action-btn" style="width:100%;justify-content:center;padding:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:#ff7675;font-weight:600;font-size:13.5px;cursor:pointer;display:flex;align-items:center;gap:8px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        <span>Сбросить кэш и обновить</span>
+      </button>
     </div>`;
 }
 
 function bindSettings(container, onChange) {
+  const btnReset = container.querySelector('#btn-force-reload');
+  if (btnReset) {
+    btnReset.onclick = async () => {
+      btnReset.disabled = true;
+      btnReset.textContent = 'Очищаю кэш...';
+      try {
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          for (const r of regs) await r.unregister();
+        }
+      } catch (e) {
+        console.warn(e);
+      }
+      location.reload(true);
+    };
+  }
   container.querySelectorAll('.theme-swatch').forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.themeId;
@@ -750,24 +776,34 @@ $aa.onclick = openSettingsSheet;
 // ---------- Service Worker и автообновление ----------
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').then(reg => {
-    reg.addEventListener('updatefound', () => {
-      const nw = reg.installing;
-      nw?.addEventListener('statechange', () => {
-        if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast();
-      });
-    });
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    if (current.view === 'chapter') {
+      showUpdateToast('Доступны обновления сайта / новые главы');
+    } else {
+      refreshing = true;
+      window.location.reload();
+    }
+  });
+
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    // Проверка обновлений при возврате на вкладку или в PWA
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') reg.update().catch(() => {});
     });
+    // Периодическая проверка раз в 10 минут
+    setInterval(() => reg.update().catch(() => {}), 10 * 60 * 1000);
   }).catch(err => console.warn('SW:', err));
 }
 
-function showUpdateToast() {
+function showUpdateToast(text = 'Доступно обновление интерфейса') {
   const t = document.getElementById('toast');
-  t.innerHTML = 'Доступно обновление интерфейса <button id="toast-reload">Обновить</button>';
+  if (!t) return;
+  t.innerHTML = `${esc(text)} <button id="toast-reload">Обновить</button>`;
   t.classList.add('show');
-  document.getElementById('toast-reload').onclick = () => location.reload();
+  const btn = document.getElementById('toast-reload');
+  if (btn) btn.onclick = () => window.location.reload();
 }
 
 document.addEventListener('visibilitychange', async () => {
