@@ -10,6 +10,7 @@ const DEFAULTS = {
   containerWidth: 740,  // макс. ширина текста в px
   align: 'left',        // left | justify
   glossary: 'first',    // first | all | off
+  immersive: 'on',      // on | off  — скрывать шторку и кнопки телефона в полноэкранном режиме
 };
 
 const KEY_SETTINGS = 'reader:settings';

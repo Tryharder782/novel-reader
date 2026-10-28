@@ -11,6 +11,7 @@ const $title = document.getElementById('topbar-title');
 const $sub = document.getElementById('topbar-sub');
 const $back = document.getElementById('btn-back');
 const $toc = document.getElementById('btn-toc');
+const $fs = document.getElementById('btn-fs');
 const $aa = document.getElementById('btn-aa');
 const $bbar = document.getElementById('bottombar');
 const $sheet = document.getElementById('sheet');
@@ -24,6 +25,59 @@ let current = { view: null, slug: null, n: null, tab: 'chapters', sortDesc: true
 const EYE_SVG = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
 
 applySettings();
+
+// ---------- Полноэкранный иммерсивный режим (скрытие системных панелей и шторки) ----------
+
+const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+async function toggleFullscreen(force) {
+  const isFs = isFullscreen();
+  const target = typeof force === 'boolean' ? force : !isFs;
+  try {
+    if (target && !isFs) {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        await el.requestFullscreen({ navigationUI: 'hide' }).catch(() => el.requestFullscreen());
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      }
+    } else if (!target && isFs) {
+      if (document.exitFullscreen) await document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+  } catch (err) {
+    console.warn('Fullscreen:', err);
+  }
+}
+
+function updateFullscreenIcon() {
+  const isFs = isFullscreen();
+  const enter = document.getElementById('fs-icon-enter');
+  const exit = document.getElementById('fs-icon-exit');
+  if (enter && exit) {
+    enter.hidden = isFs;
+    exit.hidden = !isFs;
+  }
+}
+document.addEventListener('fullscreenchange', updateFullscreenIcon);
+document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+
+// Блокировка отключения экрана во время чтения
+let wakeLock = null;
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && !wakeLock && document.visibilityState === 'visible') {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }
+  } catch { /* unsupported */ }
+}
+function releaseWakeLock() {
+  if (wakeLock) {
+    wakeLock.release().catch(() => {});
+    wakeLock = null;
+  }
+}
 
 // ---------- Данные ----------
 
@@ -92,7 +146,7 @@ async function route() {
   }
 }
 
-function setBar({ logo = false, title = '', sub = '', backHref = null, onCenter = null, showToc = false }) {
+function setBar({ logo = false, title = '', sub = '', backHref = null, onCenter = null, showToc = false, showFs = false }) {
   if (logo) {
     $title.innerHTML = `<span class="rl-logo">Ranobe<span>Lib</span></span>`;
   } else {
@@ -105,6 +159,10 @@ function setBar({ logo = false, title = '', sub = '', backHref = null, onCenter 
   $back.hidden = !backHref;
   $back.onclick = () => { location.hash = backHref; };
   $toc.hidden = !showToc;
+  if ($fs) {
+    $fs.hidden = !showFs;
+    updateFullscreenIcon();
+  }
 }
 
 // ---------- Каталог / Библиотека ----------
@@ -389,8 +447,11 @@ async function viewChapter(slug, n) {
     backHref: `#/n/${slug}`,
     onCenter: () => openTocSheet(novel, n),
     showToc: true,
+    showFs: true,
   });
   $toc.onclick = () => openTocSheet(novel, n);
+  if ($fs) $fs.onclick = () => toggleFullscreen();
+  requestWakeLock();
 
   // Нижняя панель RanobeLib
   const bbPrev = document.getElementById('bb-prev');
@@ -478,6 +539,9 @@ async function viewChapter(slug, n) {
     const hide = !$bar.classList.contains('hidden');
     $bar.classList.toggle('hidden', hide);
     $bbar.classList.toggle('hidden', hide);
+    if (hide && settings.get().immersive === 'on') {
+      toggleFullscreen(true);
+    }
   };
   $app.addEventListener('click', onClick);
 
@@ -515,6 +579,7 @@ async function viewChapter(slug, n) {
   addEventListener('scroll', onScroll, { passive: true });
 
   current.cleanup = () => {
+    releaseWakeLock();
     removeEventListener('scroll', onScroll);
     $app.removeEventListener('click', onClick);
   };
@@ -642,6 +707,10 @@ function settingsControls() {
       <div class="set-label">Подсветка терминов в тексте</div>
       ${seg('glossary', [['first', 'Первое упом.'], ['all', 'Все'], ['off', 'Выкл.']])}
     </div>
+    <div class="set-group">
+      <div class="set-label">Полноэкранный режим (скрывать шторку и кнопки)</div>
+      ${seg('immersive', [['on', 'Вкл.'], ['off', 'Выкл.']])}
+    </div>
     <div class="set-group" style="padding-top:8px">
       <button id="btn-force-reload" class="action-btn" style="width:100%;justify-content:center;padding:11px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:#ff7675;font-weight:600;font-size:13.5px;cursor:pointer;display:flex;align-items:center;gap:8px">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
@@ -683,9 +752,15 @@ function bindSettings(container, onChange) {
     seg.onclick = e => {
       const b = e.target.closest('button');
       if (!b) return;
-      settings.set({ [seg.dataset.key]: b.dataset.v });
+      const key = seg.dataset.key;
+      const val = b.dataset.v;
+      settings.set({ [key]: val });
       seg.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-      onChange?.(seg.dataset.key);
+      if (key === 'immersive') {
+        if (val === 'off' && isFullscreen()) toggleFullscreen(false);
+        else if (val === 'on' && !isFullscreen() && current.view === 'chapter') toggleFullscreen(true);
+      }
+      onChange?.(key);
     };
   });
   container.querySelectorAll('.stepper').forEach(st => {

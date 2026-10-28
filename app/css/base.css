@@ -109,6 +109,11 @@ button { font: inherit; color: inherit; }
 }
 .icon-btn:active { background: var(--surface-2); }
 .icon-btn[hidden] { display: none; }
+#fs-icon-enter[hidden], #fs-icon-exit[hidden] { display: none !important; }
+
+:fullscreen, :-webkit-full-screen {
+  background: var(--bg);
+}
 
 #read-progress {
   position: fixed; top: 0; left: 0; right: 0; height: 2.5px; z-index: 35;
