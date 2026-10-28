@@ -1,0 +1,12 @@
+{
+  "name": "novel-reader",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "PWA-читалка переводов ранобе с компонентами Intelligent UI",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node build.mjs --check",
+    "serve": "node build.mjs && node serve.mjs"
+  }
+}

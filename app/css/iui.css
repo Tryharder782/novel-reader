@@ -1,0 +1,239 @@
+/* ===== Intelligent UI =====
+   Два стиля: data-ui="minimal" (сдержанные карточки) и data-ui="game" (игровые системные окна).
+   Цвета стихий/редкости — через переменную --el / --tier. */
+
+/* --- Цвета стихий (тёмные темы) --- */
+.el-ice       { --el: #67d8ec; }
+.el-wind      { --el: #7fdc9a; }
+.el-water     { --el: #7fb2f5; }
+.el-fire      { --el: #f59a6b; }
+.el-dark      { --el: #b39cf5; }
+.el-light     { --el: #f2d77a; }
+.el-lightning { --el: #f5d547; }
+.el-earth     { --el: #c9a27a; }
+.el-plant     { --el: #8fd36b; }
+.el-neutral   { --el: #a7a9bc; }
+
+/* --- Светлые темы: более тёмные оттенки для контраста --- */
+[data-theme="light"] .el-ice, [data-theme="sepia"] .el-ice             { --el: #0c7d92; }
+[data-theme="light"] .el-wind, [data-theme="sepia"] .el-wind           { --el: #1f8a45; }
+[data-theme="light"] .el-water, [data-theme="sepia"] .el-water         { --el: #2a62b8; }
+[data-theme="light"] .el-fire, [data-theme="sepia"] .el-fire           { --el: #c0501b; }
+[data-theme="light"] .el-dark, [data-theme="sepia"] .el-dark           { --el: #6a45c4; }
+[data-theme="light"] .el-light, [data-theme="sepia"] .el-light         { --el: #9a7a0c; }
+[data-theme="light"] .el-lightning, [data-theme="sepia"] .el-lightning { --el: #a38500; }
+[data-theme="light"] .el-earth, [data-theme="sepia"] .el-earth         { --el: #8a5a2b; }
+[data-theme="light"] .el-plant, [data-theme="sepia"] .el-plant         { --el: #3f8a1d; }
+[data-theme="light"] .el-neutral, [data-theme="sepia"] .el-neutral     { --el: #5d5f6b; }
+
+/* --- Общая геометрия карточек --- */
+.iui {
+  --c: var(--accent);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 1.3em 0;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  position: relative;
+}
+.iui p { margin: 0 0 .5em; }
+.iui p:last-child { margin-bottom: 0; }
+.iui ul { margin: .2em 0; padding-left: 1.2em; }
+.iui-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.iui-label {
+  font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-faint); display: flex; align-items: center; gap: 6px;
+}
+.iui-icon { font-size: 13px; letter-spacing: 0; }
+.iui-title { font-size: 18px; font-weight: 700; line-height: 1.3; margin-top: 2px; }
+.iui-subtitle { color: var(--text-dim); font-size: 13px; }
+.iui-body { margin-top: 10px; color: var(--text); }
+
+.iui-chip {
+  display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 6px;
+  color: var(--el); background: color-mix(in srgb, var(--el) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--el) 38%, transparent);
+}
+.iui-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* Status */
+.iui-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px 14px; margin-top: 12px; }
+.iui-k { font-size: 12px; color: var(--text-faint); }
+.iui-v { font-weight: 600; margin-top: 1px; }
+.iui-danger {
+  flex: none; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 7px;
+  color: var(--d); background: color-mix(in srgb, var(--d) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--d) 40%, transparent);
+}
+.d-none    { --d: #a7a9bc; }
+.d-low     { --d: #7fdc9a; }
+.d-medium  { --d: #f2c04f; }
+.d-high    { --d: #f47a7a; }
+.d-extreme { --d: #ff4f6d; }
+[data-theme="light"] .d-medium, [data-theme="sepia"] .d-medium { --d: #a06e00; }
+[data-theme="light"] .d-high, [data-theme="sepia"] .d-high     { --d: #c22d2d; }
+[data-theme="light"] .d-low, [data-theme="sepia"] .d-low       { --d: #1f8a45; }
+
+.iui-compare { margin-top: 14px; }
+.iui-compare-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
+.iui-bar { height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.iui-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+.iui-bar-fill.ok { background: #5fc98a; }
+
+/* Item */
+.r-common    { --tier: #a7a9bc; }
+.r-uncommon  { --tier: #6fb1f2; }
+.r-rare      { --tier: #b08cf5; }
+.r-epic      { --tier: #f2a14f; }
+.r-legendary { --tier: #f2d14f; }
+[data-theme="light"] .r-uncommon, [data-theme="sepia"] .r-uncommon { --tier: #2a62b8; }
+[data-theme="light"] .r-rare, [data-theme="sepia"] .r-rare         { --tier: #6a45c4; }
+[data-theme="light"] .r-epic, [data-theme="sepia"] .r-epic         { --tier: #b5620c; }
+[data-theme="light"] .r-legendary, [data-theme="sepia"] .r-legendary { --tier: #9a7a0c; }
+[data-theme="light"] .r-common, [data-theme="sepia"] .r-common     { --tier: #6d6f7b; }
+.iui-tier {
+  flex: none; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 7px;
+  color: var(--tier, var(--text-dim)); border: 1px solid color-mix(in srgb, var(--tier, var(--text-dim)) 40%, transparent);
+  background: color-mix(in srgb, var(--tier, var(--text-dim)) 12%, transparent);
+}
+.iui-rarity { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--text-faint); }
+.iui-segs { display: flex; gap: 3px; }
+.iui-segs i { width: 16px; height: 5px; border-radius: 2px; background: var(--surface-2); }
+.iui-segs i.on { background: var(--tier); }
+
+/* Stats */
+.iui-rows { margin-top: 10px; }
+.iui-row { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+.iui-row:last-child { border-bottom: 0; }
+.iui-row .iui-k { font-size: 14px; color: var(--text-dim); }
+.iui-row .iui-v { margin: 0; font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 6px; }
+.iui-arrow { color: var(--text-faint); }
+.iui-badge { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 5px; letter-spacing: .04em; }
+.b-up  { color: #5fc98a; background: rgba(95, 201, 138, .14); }
+.b-max { color: #f2c04f; background: rgba(242, 192, 79, .14); }
+.b-new { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+/* System / Quest */
+.iui-system.k-info    { --c: var(--accent); }
+.iui-system.k-warning { --c: #f2a14f; }
+.iui-system.k-danger  { --c: #f47a7a; }
+.iui-system.k-success { --c: #5fc98a; }
+.iui-system.k-quest, .iui-quest { --c: #b08cf5; }
+.iui-system.k-levelup { --c: #f2d14f; }
+.iui-system .iui-label, .iui-quest .iui-label { color: var(--c); }
+.iui-qsect { margin-top: 10px; padding: 10px 12px; border-radius: 9px; background: var(--surface-2); }
+.iui-qsect .iui-k { font-weight: 600; margin-bottom: 2px; }
+.q-reward .iui-k { color: #5fc98a; }
+.q-fail .iui-k { color: #f47a7a; }
+
+/* Timer */
+.iui-timer { text-align: center; }
+.iui-timer .iui-label { justify-content: center; }
+.iui-time { font-family: var(--font-mono); font-size: 32px; font-weight: 700; color: #f2a14f; margin: 4px 0; font-variant-numeric: tabular-nums; }
+.iui-caption { color: var(--text-dim); font-size: 13px; }
+
+/* Note */
+.iui-note {
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.5; color: var(--text-dim);
+  margin: 1.2em 0; padding: 10px 14px; border-radius: 10px; background: var(--surface);
+  border-left: 3px solid var(--text-faint);
+}
+.iui-note-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); margin-bottom: 3px; }
+.iui-note p { margin: 0 0 .4em; }
+
+/* Spell */
+.iui-spell-line { margin: .9em 0; display: flex; justify-content: center; }
+.iui-spell {
+  font-family: var(--font-sans);
+  display: inline-flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  font-size: 14px; font-weight: 600; line-height: 1.3;
+  padding: 6px 12px; border-radius: 9px;
+  color: var(--el);
+  background: color-mix(in srgb, var(--el) 11%, transparent);
+  border: 1px solid color-mix(in srgb, var(--el) 35%, transparent);
+}
+.iui-spell-icon { font-size: 13px; }
+.iui-spell-name { color: var(--text); }
+.iui-spell-meta { font-size: 12px; font-weight: 600; opacity: .85; }
+.iui-spell.inline { display: inline-flex; font-size: .82em; padding: 0 7px; gap: 4px; border-radius: 6px; vertical-align: baseline; }
+
+/* Break / POV / SFX */
+.iui-break { display: flex; justify-content: center; margin: 2em 0; }
+.iui-break span::before { content: "⁂"; color: var(--text-faint); font-size: 18px; letter-spacing: .3em; }
+.iui-pov { display: flex; align-items: center; gap: 12px; margin: 2.2em 0 1.4em; font-family: var(--font-sans); }
+.iui-pov-line { flex: 1; height: 1px; background: var(--border); }
+.iui-pov-name {
+  font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim);
+  padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px;
+}
+.prose .iui-sfx {
+  text-align: center; font-family: var(--font-sans); font-weight: 700; font-style: italic;
+  letter-spacing: .04em; color: var(--text-dim); margin: .9em 0;
+}
+
+.iui-fallback { border-left-color: var(--accent) !important; }
+
+/* ==========================================================
+   Игровой стиль: светящиеся системные окна
+   ========================================================== */
+[data-ui="game"] .iui {
+  --c: #5ab8ff;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--c) 9%, transparent), transparent 70%),
+    color-mix(in srgb, var(--bg) 70%, #06101f);
+  border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--c) 12%, transparent) inset,
+    0 0 18px color-mix(in srgb, var(--c) 22%, transparent);
+  padding: 16px 18px;
+  color: #e3ecff;
+}
+[data-ui="game"][data-theme="light"] .iui,
+[data-ui="game"][data-theme="sepia"] .iui { color: #0d1830; background: color-mix(in srgb, var(--c) 7%, var(--surface)); }
+
+/* Уголки-скобки */
+[data-ui="game"] .iui::before,
+[data-ui="game"] .iui::after {
+  content: ""; position: absolute; width: 12px; height: 12px; pointer-events: none;
+  border-color: var(--c); border-style: solid;
+}
+[data-ui="game"] .iui::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+[data-ui="game"] .iui::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+[data-ui="game"] .iui-label { color: var(--c); font-family: var(--font-mono); letter-spacing: .14em; }
+[data-ui="game"] .iui-label::before { content: "◆"; font-size: 9px; }
+[data-ui="game"] .iui-system .iui-label::before,
+[data-ui="game"] .iui-quest .iui-label::before { content: none; }
+[data-ui="game"] .iui-title { font-size: 19px; letter-spacing: .01em; text-shadow: 0 0 12px color-mix(in srgb, var(--c) 45%, transparent); }
+[data-ui="game"] .iui-k { color: color-mix(in srgb, var(--c) 70%, var(--text-dim)); font-family: var(--font-mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; }
+[data-ui="game"] .iui-grid { border-top: 1px solid color-mix(in srgb, var(--c) 25%, transparent); padding-top: 12px; }
+[data-ui="game"] .iui-bar { background: color-mix(in srgb, var(--c) 12%, transparent); border-radius: 0; }
+[data-ui="game"] .iui-bar-fill { background: var(--c); box-shadow: 0 0 8px var(--c); border-radius: 0; }
+[data-ui="game"] .iui-danger, [data-ui="game"] .iui-tier, [data-ui="game"] .iui-chip { border-radius: 2px; font-family: var(--font-mono); }
+[data-ui="game"] .iui-qsect { background: color-mix(in srgb, var(--c) 8%, transparent); border-radius: 2px; }
+[data-ui="game"] .iui-row { border-bottom-color: color-mix(in srgb, var(--c) 18%, transparent); }
+
+[data-ui="game"] .iui-status:has(.d-high), [data-ui="game"] .iui-status:has(.d-extreme) { --c: #ff6b6b; }
+[data-ui="game"] .iui-item { --c: var(--tier, #5ab8ff); }
+[data-ui="game"] .iui-system.k-warning { --c: #ffa94d; }
+[data-ui="game"] .iui-system.k-danger  { --c: #ff6b6b; }
+[data-ui="game"] .iui-system.k-success { --c: #51cf66; }
+[data-ui="game"] .iui-system.k-quest, [data-ui="game"] .iui-quest { --c: #b197fc; }
+[data-ui="game"] .iui-system.k-levelup { --c: #ffd43b; }
+[data-ui="game"] .iui-system { text-align: center; }
+[data-ui="game"] .iui-system .iui-label { justify-content: center; }
+[data-ui="game"] .iui-time { color: var(--c); text-shadow: 0 0 14px var(--c); }
+
+[data-ui="game"] .iui-spell {
+  border-radius: 2px; font-family: var(--font-mono); letter-spacing: .02em;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--el) 28%, transparent);
+}
+[data-ui="game"] .iui-spell-line .iui-spell-name::before { content: "「"; color: var(--el); }
+[data-ui="game"] .iui-spell-line .iui-spell-name::after { content: "」"; color: var(--el); }
+[data-ui="game"] .iui-pov-name { border-radius: 2px; font-family: var(--font-mono); border-color: color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); }
+[data-ui="game"] .iui-break span::before { content: "━━ ◈ ━━"; letter-spacing: 0; color: color-mix(in srgb, var(--accent) 60%, transparent); }
