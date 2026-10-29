@@ -481,6 +481,7 @@ async function viewChapter(slug, n) {
     if (b.type === 'h') return `<h${b.level + 1}>${renderInline(b.text)}</h${b.level + 1}>`;
     if (b.type === 'quote') return `<blockquote>${b.text.split(/\n\s*\n/).map(x => `<p>${renderInline(x, { inlineSpell })}</p>`).join('')}</blockquote>`;
     if (b.type === 'component') return renderComponent(b, ctx);
+    if (b.type === 'html') return b.html;
     return '';
   }).join('\n');
 

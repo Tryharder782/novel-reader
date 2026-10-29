@@ -46,13 +46,14 @@ export function parseFields(src) {
       fields[lastKey].push(item[1].trim());
       continue;
     }
-    const kv = line.match(/^([\p{L}\w-]+)\s*:\s*(.*)$/u);
+    const kv = line.match(/^([\p{L}\w\s—-]+?)\s*:\s*(.*)$/u);
     if (kv) {
-      lastKey = kv[1].toLowerCase();
+      lastKey = kv[1].trim().toLowerCase();
       let v = kv[2].trim();
-      if (/^\[.*\]$/.test(v)) {
+      const isListKey = /^(elements|стихии|tags|теги|conditions|условия|rewards|награды)$/i.test(lastKey);
+      if (isListKey && /^\[.*\]$/.test(v)) {
         v = v.slice(1, -1).split(',').map(s => s.trim()).filter(Boolean);
-      } else if (/^".*"$/.test(v)) {
+      } else if (/^".*"$/.test(v) || /^'.*'$/.test(v)) {
         v = v.slice(1, -1);
       }
       fields[lastKey] = v === '' ? [] : v;
@@ -128,6 +129,22 @@ export function parseBlocks(body) {
     if (h) {
       flush();
       blocks.push({ type: 'h', level: h[1].length, text: h[2].trim() });
+      continue;
+    }
+
+    if (/^\s*<(div|section|aside|table|details)\b/i.test(line)) {
+      flush();
+      const tagMatch = line.match(/^\s*<([a-zA-Z0-9]+)/);
+      const tag = tagMatch ? tagMatch[1].toLowerCase() : 'div';
+      const buf = [line];
+      const closeRe = new RegExp(`</${tag}>`, 'i');
+      if (!closeRe.test(line)) {
+        for (i++; i < lines.length; i++) {
+          buf.push(lines[i]);
+          if (closeRe.test(lines[i])) break;
+        }
+      }
+      blocks.push({ type: 'html', html: buf.join('\n') });
       continue;
     }
 

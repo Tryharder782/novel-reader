@@ -84,6 +84,44 @@
 .iui-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
 .iui-bar-fill.ok { background: #5fc98a; }
 
+/* Thought / Psychology */
+.iui-thought {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-2));
+  border-left: 3px solid var(--accent);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.iui-thought-k {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.iui-thought-v {
+  color: var(--text);
+  font-style: italic;
+  font-family: var(--font-serif);
+}
+
+[data-ui="game"] .iui-thought {
+  background: color-mix(in srgb, var(--c, var(--accent)) 10%, #0d131f);
+  border-left-color: var(--c, var(--accent));
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--c, var(--accent)) 12%, transparent);
+}
+[data-ui="game"] .iui-thought-v {
+  font-family: var(--font-mono);
+  font-style: normal;
+  letter-spacing: .02em;
+}
+
 /* Item */
 .r-common    { --tier: #a7a9bc; }
 .r-uncommon  { --tier: #6fb1f2; }

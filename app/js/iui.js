@@ -26,7 +26,7 @@ export function elementOf(name) {
 
 function dangerLevel(v) {
   const s = String(v || '').toLowerCase();
-  if (/крайн|смерт|катастроф|экстрем|запредел/.test(s)) return 'extreme';
+  if (/крайн|смерт|катастроф|экстрем|запредел|чрезвычайн/.test(s)) return 'extreme';
   if (/высок/.test(s)) return 'high';
   if (/средн|умерен/.test(s)) return 'medium';
   if (/низк|слаб/.test(s)) return 'low';
@@ -61,15 +61,27 @@ function elementChips(v) {
 const R = {};
 
 R.status = ({ fields: f, body }, ctx) => {
-  const danger = f['danger'] ?? f['опасность'];
-  const level = parseInt(f.level ?? f['уровень'], 10);
-  const name = f.name ?? f['имя'] ?? '???';
+  const danger = f['danger'] ?? f['опасность'] ?? f['уровень опасности'];
+  const levelVal = f.level ?? f['уровень'];
+  const level = parseInt(levelVal, 10);
+  const name = f.name ?? f['имя'] ?? (body ? '' : '???');
   const rows = [];
   const add = (label, html) => html && rows.push(`<div class="iui-cell"><div class="iui-k">${label}</div><div class="iui-v">${html}</div></div>`);
-  add('Уровень', isNaN(level) ? esc(f.level ?? '') : String(level));
-  add('Раса', esc(f.race ?? f['раса'] ?? ''));
-  const els = f.elements ?? f['стихии'];
+
+  if (levelVal !== undefined && levelVal !== '') {
+    add('Уровень', isNaN(level) ? esc(levelVal) : String(level));
+  }
+  const race = f.race ?? f['раса'];
+  if (race) add('Раса', esc(race));
+
+  const els = f.elements ?? f['стихии'] ?? f['стихия'] ?? f.element ?? f['элемент'];
   if (els && list(els).length) add(list(els).length > 1 ? 'Стихии' : 'Стихия', `<div class="iui-chips">${elementChips(els)}</div>`);
+
+  const mana = f.mana ?? f['мана'];
+  if (mana) add('Мана', esc(mana));
+
+  const title = f.title ?? f['титул'];
+  if (title) add('Титул', esc(title));
 
   let compare = '';
   const hero = ctx.hero;
@@ -84,19 +96,36 @@ R.status = ({ fields: f, body }, ctx) => {
       </div>`;
   }
 
+  // Мысли персонажа / психология
+  let psychHtml = '';
+  const rawPsych = f['psychology'] ?? f['психология'] ?? f['мысли'] ?? f['thoughts'] ?? f['mind'];
+  if (rawPsych) {
+    let text = Array.isArray(rawPsych) ? rawPsych.join(', ') : String(rawPsych);
+    text = text.trim();
+    psychHtml = `
+      <div class="iui-thought">
+        <div class="iui-thought-k"><span class="iui-icon">💭</span>Психология</div>
+        <div class="iui-thought-v">${esc(text)}</div>
+      </div>`;
+  }
+
   const dl = dangerLevel(danger);
+  const gridHtml = rows.length ? `<div class="iui-grid">${rows.join('')}</div>` : '';
+  const bodyHtml = body ? `<div class="iui-body">${md(body, ctx)}</div>` : '';
+
   return `
     <section class="iui iui-status">
       <header class="iui-head">
         <div>
           <div class="iui-label">${esc(f.label ?? 'Статус')}</div>
-          <div class="iui-title">${esc(name)}</div>
-          ${f.title ? `<div class="iui-subtitle">${esc(f.title)}</div>` : ''}
+          ${name ? `<div class="iui-title">${esc(name)}</div>` : ''}
+          ${f.subtitle ? `<div class="iui-subtitle">${esc(f.subtitle)}</div>` : ''}
         </div>
         ${danger !== undefined && danger !== '' ? `<span class="iui-danger d-${dl}">${dl === 'none' && /^[✕x×-]$/i.test(String(danger).trim()) ? 'Угрозы нет' : 'Опасность: ' + esc(danger)}</span>` : ''}
       </header>
-      <div class="iui-grid">${rows.join('')}</div>
-      ${body ? `<div class="iui-body">${md(body, ctx)}</div>` : ''}
+      ${gridHtml}
+      ${psychHtml}
+      ${bodyHtml}
       ${compare}
     </section>`;
 };
